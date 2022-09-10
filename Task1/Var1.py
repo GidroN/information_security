@@ -1,4 +1,4 @@
-# Some others cipher
+# Some cipher (1 variant)
 
 def encode(string: str, key: int) -> str:
     columns = key
