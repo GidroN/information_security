@@ -68,11 +68,14 @@ def decode(string: str, key: int) -> str:
 
 def main():
     prompt = input("1 - Encode or 2 - Decode?: ")
-    string = input('Enter the string: ')
-    key = int(input('Enter the key: '))
+
     if prompt == '1':
+        string = input('Enter the string to encode: ')
+        key = int(input('Enter the key: '))
         print(encode(string, key))
     elif prompt == '2':
+        string = input('Enter the string to decode: ')
+        key = int(input('Enter the key: '))
         print(decode(string, key))
     else:
         print("Enter please 1 or 2.")
