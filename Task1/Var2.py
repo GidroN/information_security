@@ -1,4 +1,4 @@
-# Some cipher ()
+# Some cipher (2 variant)
 
 def encode(string: str, key: str) -> str:
     result = ''
