@@ -15,11 +15,14 @@ def encode(string: str, key: int) -> str:
             table[outer_index][inner_index] = letter
         inner_index += 1
 
-    print(table)
+    for outer_index in range(rows):
+        for inner_index in range(columns):
+            if table[outer_index][inner_index] == '':
+                table[outer_index][inner_index] = '$'
+
 
     inner_index = outer_index = 0
     result = ''
-
     for _ in range(columns * rows):
         try:
             result += table[outer_index][inner_index]
@@ -33,13 +36,46 @@ def encode(string: str, key: int) -> str:
 
 
 def decode(string: str, key: int) -> str:
-    pass
+    number_of_special_symbols = string.count('$')
+    rows = key
+    columns = len(string) // key if len(string) % key == 0 else len(string) // key + 1
+    table = [['' for i in range(columns)] for i in range(rows)]
+    inner_index = outer_index = 0
+
+    for letter in string:
+        try:
+            table[outer_index][inner_index] = letter
+        except IndexError:
+            inner_index = 0
+            outer_index += 1
+            table[outer_index][inner_index] = letter
+        inner_index += 1
+
+    inner_index = outer_index = 0
+    result = ''
+
+    for _ in range(columns * rows):
+        try:
+            result += table[outer_index][inner_index]
+        except IndexError:
+            inner_index += 1
+            outer_index = 0
+            result += table[outer_index][inner_index]
+        outer_index += 1
+
+    return result[:len(result) - number_of_special_symbols]
 
 
 def main():
+    prompt = input("1 - Encode or 2 - Decode?: ")
     string = input('Enter the string: ')
     key = int(input('Enter the key: '))
-    print(encode(string, key))
+    if prompt == '1':
+        print(encode(string, key))
+    elif prompt == '2':
+        print(decode(string, key))
+    else:
+        print("Enter please 1 or 2.")
 
 
 if __name__ == '__main__':
