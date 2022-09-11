@@ -36,7 +36,6 @@ def encode(string: str, key: int) -> str:
 
 
 def decode(string: str, key: int) -> str:
-    number_of_special_symbols = string.count('$')
     rows = key
     columns = len(string) // key if len(string) % key == 0 else len(string) // key + 1
     table = [['' for i in range(columns)] for i in range(rows)]
@@ -62,6 +61,13 @@ def decode(string: str, key: int) -> str:
             outer_index = 0
             result += table[outer_index][inner_index]
         outer_index += 1
+
+    number_of_special_symbols = 0
+    for i in range(len(result) - 1, -1, -1):
+        if result[i] == '$':
+            number_of_special_symbols += 1
+        else:
+            break
 
     return result[:len(result) - number_of_special_symbols]
 
