@@ -58,7 +58,7 @@ class FileManager:
 
 
 if __name__ == '__main__':
-    path = "F:\Programming\PycharmProjects\information_security\Task2\TestDirectoryVar3"
+    path = ""
     manager = FileManager(path)
     manager.add('b.txt')
     manager.add('c.txt')
