@@ -55,12 +55,3 @@ class FileManager:
         files = os.listdir(self.PATH)
         files.sort(reverse=not ascending)
         return files
-
-
-if __name__ == '__main__':
-    path = ""
-    manager = FileManager(path)
-    manager.add('b.txt')
-    manager.add('c.txt')
-    manager.add('a.txt')
-    print(manager.sort(ascending=True))
