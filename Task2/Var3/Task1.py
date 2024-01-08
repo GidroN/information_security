@@ -55,3 +55,8 @@ class FileManager:
         files = os.listdir(self.PATH)
         files.sort(reverse=not ascending)
         return files
+
+
+if __name__ == '__main__':
+    path = "F:\Programming\PycharmProjects\information_security\Task2\TestDirectoryVar3"
+    manager = FileManager(path)

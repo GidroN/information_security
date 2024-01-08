@@ -2,3 +2,5 @@
 venv/
 *.log
 .env
+*.db
+testdir*/
