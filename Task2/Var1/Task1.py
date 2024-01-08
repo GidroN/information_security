@@ -134,14 +134,3 @@ class BankAccount:
             balance = self.db.get_balance()
             return f"Your balance is: {balance}"
         return "You have to register first!"
-
-
-if __name__ == '__main__':
-    card_num = '4893 4703 1885 1588'
-    pin_code = '123456'
-    account = BankAccount()
-    # print(account.register(card_num, pin_code))
-    print(account.log_in(card_num, pin_code))
-    # print(account.top_up(5.00))
-    # print(account.top_up(10.0))
-    print(account.top_down(10.00))
