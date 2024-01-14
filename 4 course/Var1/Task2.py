@@ -29,5 +29,6 @@ class DateTimeCalculator:
 
         return result_time
 
+
 calc = DateTimeCalculator('11:47 PM', '24:20', 'вторник')
 print(calc.calculate())

@@ -122,10 +122,11 @@ class BankAccount:
     def top_down(self, amount: float):
         if self.logged_in:
             balance = self.db.get_balance()
-            if (balance - amount) < 0:
+            new_balance = balance - amount
+            if new_balance < 0:
                 return f"Sorry, you have not enough money! Your balance is {balance}."
-            self.db.set_balance(balance - amount)
-            return f"Successfully, your balance is {balance}"
+            self.db.set_balance(new_balance)
+            return f"Successfully, your balance is {new_balance}"
         return "You have to register first!"
 
     def check_balance(self):
