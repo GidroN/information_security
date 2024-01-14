@@ -14,7 +14,7 @@ class DateTimeCalculator:
         hours, minutes = map(int, self.period.split(':'))
         final_time = start_time + timedelta(hours=hours, minutes=minutes)
         days_passed = final_time.day - start_time.day
-        result_time = final_time.strftime('%I:%M %p').lstrip('0').replace(' 0', ' ')
+        result_time = final_time.strftime('%I:%M %p')
 
         if self.weekday:
             start_weekday_idx = self.WEEKDAYS.index(self.weekday.capitalize())
