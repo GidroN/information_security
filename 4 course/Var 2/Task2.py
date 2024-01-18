@@ -34,11 +34,11 @@ class DataBase:
         self.cur.execute(prompt)
         self.conn.commit()
 
-    def add_operation(self, category: str, balance: float, operation: str, change description: str):
-        prompt = ("INSERT INTO {category} (balance, operation, description) "
-                  "VALUES (?, ?, ?);").format(category=category.capitalize())
+    def add_operation(self, category: str, balance: float, operation: str, change: float, description: str):
+        prompt = ("INSERT INTO {category} (balance, operation, change, description) "
+                  "VALUES (?, ?, ?, ?);").format(category=category.capitalize())
 
-        self.cur.execute(prompt, ( balance, operation, description))
+        self.cur.execute(prompt, (balance, operation, change, description))
         self.conn.commit()
 
     def get_balance(self, category: str):
@@ -53,10 +53,11 @@ class Wallet:
         self.db = DataBase()
 
     def add_category(self, category: str):
-        ...
+        self.db.add_category(category)
+        return "Новая категория успешно добавлена. Можете вносить операции."
 
     def top_up(self, amount: float, description: str = ''):
-        ...
+        balance = self.db.get 
 
     def top_down(self, amount: float, description: str = '') -> bool:
         ...
@@ -73,4 +74,4 @@ class Wallet:
 
 db = DataBase()
 db.add_category('food')
-db.add_operation('food', 10.0, db.TOP_UP, '')
+db.add_operation('food', 10.0, db.TOP_UP, 10, '')
