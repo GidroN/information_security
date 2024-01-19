@@ -32,10 +32,12 @@ class DataBase:
             open(path, 'w').close()
         return sqlite3.connect(path)
 
-    def _get_all_rows_from_category(self):
-        ...
+    def get_all_rows_from_category(self, category: str) -> list[tuple[str, int]]:
+        prompt = f"SELECT description, operation, change FROM {category.capitalize()};"
+        self.cur.execute(prompt)
+        return self.cur.fetchall()
 
-    def check_table_exists(self, category: str):
+    def check_table_exists(self, category: str) -> int:
         prompt = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?"
         self.cur.execute(prompt, (category.capitalize(), ))
         self.conn.commit()
@@ -75,7 +77,6 @@ class DataBase:
 class Wallet:
     def __init__(self):
         self.db = DataBase()
-        self.table = PrettyTable()
 
     def add_category(self, category: str, balance: float = 0.0) -> bool:
         if self.db.check_table_exists(category):
@@ -120,21 +121,29 @@ class Wallet:
 
     @category_exist_handler
     def print_category_stats(self, category: str):
-        ...
+        print(f'Статистика для категории {category.capitalize()}: ')
+        table = PrettyTable(['Описание операции', 'Тип операции', 'Сумма'])
+        items = self.db.get_all_rows_from_category(category)
+
+        for row in items:
+            table.add_row(list(row))
+
+        total = self.db.get_balance(category)
+        table.add_row(['ИТОГО', '', total])
+
+        print(table)
 
 
-# if __name__ == '__main__':
-#     db = DataBase()
-#     wallet = Wallet()
-#     wallet.add_category('Food')
-#     wallet.add_category('Clothes')
+if __name__ == '__main__':
+    db = DataBase()
+    db.get_all_rows_from_category('Food')
+    wallet = Wallet()
+    wallet.print_category_stats('food')
+    # wallet.add_category('Food')
+    # wallet.add_category('Clothes')
 #     wallet.top_up('Food', 100,)
-#     wallet.top_up('Clothes', 100)
+    wallet.top_up('Clothes', 100)
     # wallet.top_down('Food', 50)
-    # wallet.send_to_category('Food', 'Clothes', 30)
+    wallet.send_to_category('Food', 'Clothes', 30)
 
-print('Статистика для категории Food:')
-x = PrettyTable(['Описание операции', 'Тип операции', 'Сумма'])
-x.add_row(['Внесение средств', 'Пополнение', 10.000])
 
-print(x)
