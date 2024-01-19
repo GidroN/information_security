@@ -2,6 +2,17 @@ import os
 import sqlite3
 
 
+def category_exist_handler(func):
+    def wrapper(self, category: str, *args, **kwargs):
+        db = DataBase()
+        if not db.check_category_exists(category):
+            return f'Категории {category} не существует. Сначала добавьте ее.'
+
+        return func(self, category, *args, **kwargs)
+
+    return wrapper
+
+
 class DataBase:
 
     TOP_UP = 'Пополнение'
@@ -13,7 +24,6 @@ class DataBase:
 
         self.conn = self._get_connection(db_path)
         self.cur = self.conn.cursor()
-        # self._init_db()
 
     @staticmethod
     def _get_connection(path):
@@ -21,34 +31,27 @@ class DataBase:
             open(path, 'w').close()
         return sqlite3.connect(path)
 
-    # def _init_db(self):
-    #     self.cur.execute("""
-    #                 CREATE TABLE IF NOT EXISTS Balance(
-    #                     ID INTEGER PRIMARY KEY,
-    #                     balance REAL
-    #                     );
-    #                 """)
-    #     self.conn.commit()
-
     def check_category_exists(self, category: str):
         prompt = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?"
-        self.cur.execute(prompt, (category, ))
+        self.cur.execute(prompt, (category.capitalize(), ))
         self.conn.commit()
-        return self.cur.fetchone()[0]
-        # return self.cur.fetchone()[0] != 0
+        return self.cur.fetchone()[0] == 1
 
-    def add_category(self, category: str):
-        prompt = """
+    def add_category(self, category: str, balance):
+        prompt = f"""
                     CREATE TABLE IF NOT EXISTS {category}(
                         ID INTEGER PRIMARY KEY,
                         balance REAL,
                         operation VARCHAR(50),
                         change REAL,
                         description TEXT 
-                    );
-                 """.format(category=category.capitalize())
+                    ); 
 
-        self.cur.execute(prompt)
+                    INSERT INTO {category} (balance, operation, change, description) 
+                    VALUES ({balance}, 'Пополнение', {balance}, 'Создание новой категории');
+                    """
+
+        self.cur.executescript(prompt)
         self.conn.commit()
 
     def add_operation(self, category: str, balance: float, operation: str, change: float, description: str):
@@ -61,7 +64,7 @@ class DataBase:
     def get_balance(self, category: str):
         prompt = f"SELECT balance FROM {category} ORDER BY ID DESC LIMIT 1;".format(category=category.capitalize())
 
-        self.cur.execute(prompt, (category, ))
+        self.cur.execute(prompt)
         return self.cur.fetchone()[0]
 
 
@@ -69,27 +72,60 @@ class Wallet:
     def __init__(self):
         self.db = DataBase()
 
-    def add_category(self, category: str):
-        self.db.add_category(category)
-        return "Новая категория успешно добавлена. Можете вносить операции."
+    def add_category(self, category: str, balance: float = 0.0) -> bool:
+        if self.db.check_category_exists(category):
+            print("Данная категория уже добавлена. Вностие изменения.")
+            return False
 
-    def top_up(self, amount: float, description: str = ''):
-        ...
+        self.db.add_category(category, balance)
+        print("Новая категория успешно добавлена. Можете вносить операции.")
+        return True
 
-    def top_down(self, amount: float, description: str = '') -> bool:
-        ...
+    @category_exist_handler
+    def top_up(self, category: str, amount: float, description: str = '') -> bool:
+        current_balance = self.db.get_balance(category)
+        new_balance = current_balance + amount
+        self.db.add_operation(category, new_balance, self.db.TOP_UP, amount, description)
+        print(f"Пополнение успешно проведено. Ваш баланс в категории {category} составляет: {new_balance}")
+        return True
 
-    def check_balance(self, amount: float, category: str) -> bool:
-        ...
+    @category_exist_handler
+    def top_down(self, category: str, amount: float, description: str = '') -> bool:
+        current_balance = self.db.get_balance(category)
+        if not self.check_balance(category, amount):
+            print(f"У вас недостаточно средств на проведение данной операции. Ваш баланс: {current_balance}")
+            return False
+        new_balance = current_balance - amount
+        self.db.add_operation(category, new_balance, self.db.TOP_DOWN, amount, description)
+        print(f"Снятие успешно проведено. Ваш баланс в категории {category} составляет: {new_balance}")
+        return True
 
-    def send_to_category(self, from_category: str, to_category: str, amount: float):
-        ...
+    @category_exist_handler
+    def check_balance(self, category: str, amount: float) -> bool:
+        return self.db.get_balance(category) >= amount
+
+    @category_exist_handler
+    def send_to_category(self, from_category: str, to_category: str, amount: float) -> bool:
+        res = self.top_down(from_category, amount, f"Перевод в категорию {to_category}")
+        if not res:
+            return False
+        self.top_up(to_category, amount, f"Перевод из категории {from_category}")
+        print(f"Перевод из категории {from_category} в категорию {to_category} на сумму {amount} завершен успешно.")
+        return True
 
     def print_wallet(self):
         ...
 
 
-db = DataBase()
-db.add_category('food')
-# db.add_operation('food', 10.0, db.TOP_UP, 10, '')
-print(db.check_category_exists('food'))
+if __name__ == '__main__':
+    db = DataBase()
+    wallet = Wallet()
+    # wallet.add_category('Food')
+    # wallet.add_category('Clothes')
+    # wallet.add_category('Stuff')
+    # print(wallet.top_up('Food', 100))
+    # print(wallet.top_up('Clothes', 100))
+    # print(wallet.top_up('Stuff', 100))
+    print(wallet.top_down('Food', 50))
+    # print(wallet.top_down('Food', 50))
+    # wallet.send_to_category('Food', 'Clothes', 100)
