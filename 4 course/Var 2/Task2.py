@@ -13,12 +13,29 @@ class DataBase:
 
         self.conn = self._get_connection(db_path)
         self.cur = self.conn.cursor()
+        # self._init_db()
 
     @staticmethod
     def _get_connection(path):
         if not os.path.exists(path):
             open(path, 'w').close()
         return sqlite3.connect(path)
+
+    # def _init_db(self):
+    #     self.cur.execute("""
+    #                 CREATE TABLE IF NOT EXISTS Balance(
+    #                     ID INTEGER PRIMARY KEY,
+    #                     balance REAL
+    #                     );
+    #                 """)
+    #     self.conn.commit()
+
+    def check_category_exists(self, category: str):
+        prompt = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?"
+        self.cur.execute(prompt, (category, ))
+        self.conn.commit()
+        return self.cur.fetchone()[0]
+        # return self.cur.fetchone()[0] != 0
 
     def add_category(self, category: str):
         prompt = """
@@ -57,7 +74,7 @@ class Wallet:
         return "Новая категория успешно добавлена. Можете вносить операции."
 
     def top_up(self, amount: float, description: str = ''):
-        balance = self.db.get
+        ...
 
     def top_down(self, amount: float, description: str = '') -> bool:
         ...
@@ -65,7 +82,7 @@ class Wallet:
     def check_balance(self, amount: float, category: str) -> bool:
         ...
 
-    def send_to_category(self, amount: float, category: str):
+    def send_to_category(self, from_category: str, to_category: str, amount: float):
         ...
 
     def print_wallet(self):
@@ -74,4 +91,5 @@ class Wallet:
 
 db = DataBase()
 db.add_category('food')
-db.add_operation('food', 10.0, db.TOP_UP, 10, '')
+# db.add_operation('food', 10.0, db.TOP_UP, 10, '')
+print(db.check_category_exists('food'))
