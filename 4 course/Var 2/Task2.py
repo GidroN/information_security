@@ -1,7 +1,7 @@
 from prettytable import PrettyTable
 from functools import wraps
-import os
 import sqlite3
+import os
 
 
 class DataBase:
@@ -39,17 +39,17 @@ class DataBase:
 
     def add_table(self, category: str, balance):
         prompt = f"""
-                    CREATE TABLE IF NOT EXISTS {category}(
-                        ID INTEGER PRIMARY KEY,
-                        balance REAL,
-                        operation VARCHAR(50),
-                        change REAL,
-                        description TEXT 
-                    ); 
+            CREATE TABLE IF NOT EXISTS {category}(
+                ID INTEGER PRIMARY KEY,
+                balance REAL,
+                operation VARCHAR(50),
+                change REAL,
+                description TEXT 
+            ); 
 
-                    INSERT INTO {category} (balance, operation, change, description) 
-                    VALUES ({balance}, '{self.TOP_UP}', {balance}, 'Создание новой категории');
-                    """
+            INSERT INTO {category} (balance, operation, change, description) 
+            VALUES ({balance}, '{self.TOP_UP}', {balance}, 'Создание новой категории');
+            """
 
         self.cur.executescript(prompt)
         self.conn.commit()
@@ -90,7 +90,7 @@ class Wallet:
 
     def add_category(self, category: str, balance: float = 0.0) -> bool:
         if self.db.check_table_exists(category):
-            print("Данная категория уже добавлена. Вностие изменения.")
+            print("Данная категория уже добавлена. Вносите изменения.")
             return False
 
         self.db.add_table(category, balance)
@@ -169,7 +169,7 @@ class Wallet:
         spend_in_categories = self._calculate_percent_spend_for_each_category(categories)
         table = PrettyTable(['Категория', 'потраченный % от общей суммы'])
         for category, percent in spend_in_categories:
-            table.add_row([category, percent])
+            table.add_row([category.capitalize(), percent])
 
         print(table)
 
@@ -178,10 +178,10 @@ if __name__ == '__main__':
     wallet = Wallet()
     wallet.add_category('Food')
     wallet.add_category('Clothes')
-    wallet.top_up('Food', 100, )
-    wallet.top_up('Clothes', 100)
-    wallet.top_down('Food', 50)
-    wallet.top_down('Clothes', 100)
+    wallet.top_up('Food', 100, "На покупку молока")
+    wallet.top_up('Clothes', 100, "На покупку кепки")
+    wallet.top_down('Food', 50, 'Купил молоко')
+    wallet.top_down('Clothes', 200, 'Купил кепку')
     wallet.send_to_category('Food', 'Clothes', 30)
     wallet.print_category_stats('food')
     wallet.print_category_stats('clothes')
