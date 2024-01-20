@@ -1,22 +1,9 @@
-from typing import Tuple, Any, List
-
 from prettytable import PrettyTable
+from functools import wraps
 import os
 import sqlite3
 
 
-def category_exist_handler(func):
-    def wrapper(self, category: str | list, *args, **kwargs):
-        categories = [category] if isinstance(category, str) else category
-        missing_categories = [cat for cat in categories if not self.db.check_table_exists(cat)]
-
-        if missing_categories:
-            missing_str = ', '.join(missing_categories)
-            return f'Категории {missing_str} не существует. Сначала добавьте ее/их.'
-
-        return func(self, category, *args, **kwargs)
-
-    return wrapper
 
 
 class DataBase:
@@ -87,6 +74,22 @@ class DataBase:
 class Wallet:
     def __init__(self):
         self.db = DataBase()
+
+    @staticmethod
+    def category_exist_handler(func):
+        @wraps(func)
+        def wrapper(self, category: str | list, *args, **kwargs):
+            categories = [category] if isinstance(category, str) else category
+            missing_categories = [cat for cat in categories if not self.db.check_table_exists(cat)]
+
+            if missing_categories:
+                missing_str = ', '.join(missing_categories)
+                print(f'Категории {missing_str} не существует. Сначала добавьте ее/их.')
+                return
+
+            return func(self, category, *args, **kwargs)
+
+        return wrapper
 
     def add_category(self, category: str, balance: float = 0.0) -> bool:
         if self.db.check_table_exists(category):
@@ -167,7 +170,7 @@ class Wallet:
     @category_exist_handler
     def calculate_percent_spend_for_each_category(self, categories: list) -> None:
         spend_in_categories = self._calculate_percent_spend_for_each_category(categories)
-        table = PrettyTable(['Категория', '% от потраченной суммы'])
+        table = PrettyTable(['Категория', 'потраченный % от общей суммы'])
         for category, percent in spend_in_categories:
             table.add_row([category, percent])
 
@@ -175,15 +178,15 @@ class Wallet:
 
 
 if __name__ == '__main__':
-    db = DataBase()
     wallet = Wallet()
-    # wallet.print_category_stats('food')
-    # wallet.add_category('Food')
-    # wallet.add_category('Clothes')
-#     wallet.top_up('Food', 100,)
-#     wallet.top_up('Clothes', 100)
-    # wallet.top_down('Food', 50)
-    # wallet.send_to_category('Food', 'Clothes', 30)
-    # print(db.get_money_rows_from_category('food', DataBase().TOP_UP))
-    # print(wallet._calculate_percent_spend_for_each_category(['food', 'clothes']))
+    wallet.add_category('Food')
+    wallet.add_category('Clothes')
+    wallet.top_up('Food', 100,)
+    wallet.top_up('Clothes', 100)
+    wallet.top_down('Food', 50)
+    wallet.top_down('Clothes', 100)
+    wallet.send_to_category('Food', 'Clothes', 30)
+    wallet.print_category_stats('food')
+    wallet.print_category_stats('clothes')
     wallet.calculate_percent_spend_for_each_category(['food', 'clothes'])
+
