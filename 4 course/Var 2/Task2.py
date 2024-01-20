@@ -4,10 +4,7 @@ import os
 import sqlite3
 
 
-
-
 class DataBase:
-
     TOP_UP = 'Пополнение'
     TOP_DOWN = 'Снятие'
 
@@ -36,7 +33,7 @@ class DataBase:
 
     def check_table_exists(self, category: str) -> int:
         prompt = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?"
-        self.cur.execute(prompt, (category.capitalize(), ))
+        self.cur.execute(prompt, (category.capitalize(),))
         self.conn.commit()
         return self.cur.fetchone()[0] == 1
 
@@ -181,7 +178,7 @@ if __name__ == '__main__':
     wallet = Wallet()
     wallet.add_category('Food')
     wallet.add_category('Clothes')
-    wallet.top_up('Food', 100,)
+    wallet.top_up('Food', 100, )
     wallet.top_up('Clothes', 100)
     wallet.top_down('Food', 50)
     wallet.top_down('Clothes', 100)
@@ -189,4 +186,3 @@ if __name__ == '__main__':
     wallet.print_category_stats('food')
     wallet.print_category_stats('clothes')
     wallet.calculate_percent_spend_for_each_category(['food', 'clothes'])
-
