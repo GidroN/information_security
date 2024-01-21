@@ -5,9 +5,9 @@ import sys
 
 class BruteForce:
 
-    def __init__(self, data: list | str, zip_file: str):
+    def __init__(self, data: list | str, zip_file: str, extract_folder):
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        self.extract_files_folder = os.path.join(base_dir, 'testdir_fixtures')
+        self.extract_files_folder = os.path.join(base_dir, extract_folder)
 
         if isinstance(data, list):
             self.password_list = data
@@ -44,5 +44,5 @@ class BruteForce:
 
 
 if __name__ == '__main__':
-    brut = BruteForce(['qwerty', 'qwerqwer', '123'], 'testdir_fixtures/secret.zip')
+    brut = BruteForce(['qwerty', 'qwerqwer', '123'], 'testdir_fixtures/secret.zip', 'testdir_fixtures')
     brut.start_bruteforce()
