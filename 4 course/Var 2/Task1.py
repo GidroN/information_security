@@ -5,7 +5,7 @@ import sys
 
 class BruteForce:
 
-    def __init__(self, data: list | str, zip_file: str, extract_folder):
+    def __init__(self, data: list | str, zip_file: str, extract_folder: str):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         self.extract_files_folder = os.path.join(base_dir, extract_folder)
 
