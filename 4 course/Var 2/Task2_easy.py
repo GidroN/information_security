@@ -86,8 +86,8 @@ class Wallet:
                 if operation_type == self.TOP_DOWN:
                     total_top_down += amount
 
-            percent = (total_top_down / total_top_up) * 100
-            print(f"{category}: {percent:.2f}%")
+            percent = round((total_top_down / total_top_up) * 100, 2)
+            print(f"{category}: {percent}%")
 
 
 if __name__ == '__main__':
