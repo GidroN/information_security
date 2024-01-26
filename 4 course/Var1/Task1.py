@@ -83,7 +83,8 @@ class BankAccount:
         full_sum = sum(nums)
 
         last_digit = full_sum % 10
-        return 10 - last_digit
+        result = 10 - last_digit
+        return result if result != 10 else 0
 
     def register(self, card_num: str, pin_code: str):
         card_num = card_num.replace(' ', '')
@@ -134,3 +135,15 @@ class BankAccount:
             balance = self.db.get_balance()
             return f"Your balance is: {balance}"
         return "You have to register first!"
+
+
+if __name__ == '__main__':
+    card_num = '4163168631469723'
+    pin_code = '323614'
+    account = BankAccount()
+    # print(account.register(card_num, pin_code))
+    print(account.log_in(card_num, pin_code))
+    print(account.top_up(100))
+    # print(account.top_down(50))
+    # print(account.check_balance())
+    # print(account.top_down(60))

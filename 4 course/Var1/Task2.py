@@ -30,5 +30,6 @@ class DateTimeCalculator:
         return result_time
 
 
-calc = DateTimeCalculator('11:47 PM', '24:20', 'вторник')
-print(calc.calculate())
+if __name__ == '__main__':
+    calc = DateTimeCalculator('11:47 PM', '24:20', 'вторник')
+    print(calc.calculate())
