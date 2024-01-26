@@ -109,7 +109,9 @@ def main():
               '2 - пополнить категорию\n'
               '3 - списать деньги с категории\n'
               '4 - посмотреть статистику для категории\n'
-              '5 - посмотреть потраченных денег для всех категории')
+              '5 - посмотреть потраченных денег для всех категории\n'
+              '6 - посмотреть баланс категории\n'
+              '7 - сделать перевод из категории в категорию')
 
         prompt = int(input('Введите цифру: '))
         category = input('Введите название для категории: ')
@@ -118,17 +120,23 @@ def main():
             balance = float(input('Введите начальный баланс. (По умолчанию - 0): ') or 0.0)
             wallet.add_category(category, balance)
         elif prompt == 2:
-            amount = float(input('Введите сумму баланс: '))
+            amount = float(input('Введите сумму: '))
             description = input('Введите описание для операции: ')
             wallet.top_up(category, amount, description)
         elif prompt == 3:
-            amount = float(input('Введите сумму баланс: '))
+            amount = float(input('Введите сумму: '))
             description = input('Введите описание для операции: ')
             wallet.top_down(category, amount, description)
         elif prompt == 4:
             wallet.print_category_stats(category)
         elif prompt == 5:
             wallet.calculate_percent_spend()
+        elif prompt == 6:
+            wallet.check_balance(category)
+        elif prompt == 7:
+            destination = input('Введите категорию, в которую необходимо сделать перевод.')
+            amount = float(input('Введите сумму: '))
+            wallet.send_to_category(category, destination, amount)
         else:
             print('Я не понимаю о чем вы.')
 
