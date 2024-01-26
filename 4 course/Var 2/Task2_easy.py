@@ -53,8 +53,8 @@ class Wallet:
         return self.change_balance(category, amount, self.TOP_DOWN, description)
 
     def send_to_category(self, from_category: str, to_category: str, amount: float):
-        self.top_down(from_category, amount)
-        self.top_up(to_category, amount)
+        self.top_down(from_category, amount, f'Перевод в категорию {to_category}')
+        self.top_up(to_category, amount, f'Перевод из категории {from_category}')
 
         print(f'Перевод из категории {from_category} в категорию {to_category} успешно завершен')
 
