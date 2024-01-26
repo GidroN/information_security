@@ -47,10 +47,20 @@ class Wallet:
 
     def top_down(self, category: str, amount: float, description: str = ''):
         if category not in self.categories:
-            print("Категория не найдена.")
+            print(f"Категория {category} не найдена.")
             return False
 
         return self.change_balance(category, amount, self.TOP_DOWN, description)
+
+    def send_to_category(self, from_category: str, to_category: str, amount: float):
+        self.top_down(from_category, amount)
+        self.top_up(to_category, amount)
+
+        print(f'Перевод из категории {from_category} в категорию {to_category} успешно завершен')
+
+    def check_balance(self, category):
+        current_balance = self.categories[category]["balance"]
+        print(f'Ваш баланс в категории составляет: {current_balance}')
 
     def print_category_stats(self, category: str):
         if category not in self.categories:
@@ -90,10 +100,37 @@ class Wallet:
             print(f"{category}: {percent}%")
 
 
-if __name__ == '__main__':
+def main():
     wallet = Wallet()
-    wallet.add_category("Развлечения", 1000)
-    wallet.top_up("Развлечения", 500, "Пополнение наличными")
-    wallet.top_down("Развлечения", 200, "Кино")
-    wallet.print_category_stats("Развлечения")
-    wallet.calculate_percent_spend()
+    while True:
+
+        print('Что хотите сделать?\n'
+              '1 - создать категорию\n'
+              '2 - пополнить категорию\n'
+              '3 - списать деньги с категории\n'
+              '4 - посмотреть статистику для категории\n'
+              '5 - посмотреть потраченных денег для всех категории')
+
+        prompt = int(input('Введите цифру: '))
+        category = input('Введите название для категории: ')
+
+        if prompt == 1:
+            balance = float(input('Введите начальный баланс. (По умолчанию - 0): ') or 0.0)
+            wallet.add_category(category, balance)
+        elif prompt == 2:
+            amount = float(input('Введите сумму баланс: '))
+            description = input('Введите описание для операции: ')
+            wallet.top_up(category, amount, description)
+        elif prompt == 3:
+            amount = float(input('Введите сумму баланс: '))
+            description = input('Введите описание для операции: ')
+            wallet.top_down(category, amount, description)
+        elif prompt == 4:
+            wallet.print_category_stats(category)
+        elif prompt == 5:
+            wallet.calculate_percent_spend()
+        else:
+            print('Я не понимаю о чем вы.')
+
+
+main()
