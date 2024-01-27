@@ -1,6 +1,5 @@
 from zipfile import ZipFile, BadZipFile
 import os
-import sys
 
 
 class BruteForce:
@@ -8,6 +7,7 @@ class BruteForce:
     def __init__(self, data: list | str, zip_file: str, extract_folder: str):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         self.extract_files_folder = os.path.join(base_dir, extract_folder)
+        self.zip_file_path = os.path.join(base_dir, zip_file)
 
         if isinstance(data, list):
             self.password_list = data
@@ -15,21 +15,23 @@ class BruteForce:
             file_path = os.path.join(base_dir, data)
             self.password_list = self._get_data_from_file(file_path)
 
-        self.zip_file_path = os.path.join(base_dir, zip_file)
-
     @staticmethod
     def _get_data_from_file(path: str):
         if not os.path.exists(path):
             print('Указанный файл с паролями не найден.')
-            sys.exit(1)
+            exit(1)
 
+        password_list = []
         with open(path, 'r') as file:
-            return [item.strip() for item in file.readlines()]
+            for item in file.readlines():
+                password_list.append(item.strip())
+
+        return password_list
 
     def start_bruteforce(self):
         if not os.path.exists(self.zip_file_path):
             print('Указанный архив не найден.')
-            return
+            exit(1)
 
         print('Начат брутфорс.')
         for password in self.password_list:
@@ -44,5 +46,5 @@ class BruteForce:
 
 
 if __name__ == '__main__':
-    brut = BruteForce(['qwerty', 'qwerqwer', '123'], 'testdir_fixtures/secret.zip', 'testdir_fixtures')
+    brut = BruteForce('testdir_fixtures/passwords.txt', 'testdir_fixtures/secret.zip', 'testdir_fixtures')
     brut.start_bruteforce()
