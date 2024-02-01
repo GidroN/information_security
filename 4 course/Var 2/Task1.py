@@ -1,50 +1,66 @@
-from zipfile import ZipFile, BadZipFile
 import os
+import itertools
+import pyminizip
+from zipfile import ZipFile, BadZipFile
 
 
-class BruteForce:
-
-    def __init__(self, data: list | str, zip_file: str, extract_folder: str):
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        self.extract_files_folder = os.path.join(base_dir, extract_folder)
-        self.zip_file_path = os.path.join(base_dir, zip_file)
-
-        if isinstance(data, list):
-            self.password_list = data
-        else:
-            file_path = os.path.join(base_dir, data)
-            self.password_list = self._get_data_from_file(file_path)
+class BruteforceZip:
+    def __init__(self, zip_filename):
+        self.zip_filename: str = zip_filename
+        self.base_dir = os.path.dirname(os.path.abspath(__file__))
 
     @staticmethod
     def _get_data_from_file(path: str):
         if not os.path.exists(path):
             print('Указанный файл с паролями не найден.')
-            exit(1)
+            return
 
-        password_list = []
         with open(path, 'r') as file:
-            for item in file.readlines():
-                password_list.append(item.strip())
+            password_list = [item.strip() for item in file.readlines()]
 
         return password_list
 
-    def start_bruteforce(self):
-        if not os.path.exists(self.zip_file_path):
-            print('Указанный архив не найден.')
-            exit(1)
+    def create_protected_zip(self, content, password: str):
+        pyminizip.compress(content, None, self.zip_filename, password, 0)
 
-        print('Начат брутфорс.')
-        for password in self.password_list:
+    def _extract_protected_zip(self, password: str, path: str = None):
+        extract_path = self.base_dir if not path else path
+        with ZipFile(self.zip_filename, 'r') as file:
             try:
-                with ZipFile(self.zip_file_path, 'r') as zip:
-                    zip.extractall(path=self.extract_files_folder, pwd=password.encode('utf-8'))
-                    print(f'Подходящий пароль: {password}')
-                    print('Брут успешно завершен.')
-                    break
-            except (BadZipFile, RuntimeError):
-                print(f'Неподходящий пароль: {password}')
+                file.extractall(path=extract_path, pwd=password.encode('utf-8'))
+                return True
+            except (RuntimeError, BadZipFile):
+                ...
+        return False
+
+    def brute_force_combinations(self, data: str, length: int):
+        combinations = itertools.permutations(data, length)
+        for comb in combinations:
+            try_pass = ''.join(comb)
+            print(f'Попытка: {try_pass}')
+            if self._extract_protected_zip(try_pass):
+                print(f'Пароль успешно найден: {try_pass}')
+                return
+        print('Пароль не найден =(')
+
+    def brute_force_from_pass_list(self, data: str | list[str]):
+        if isinstance(data, str):
+            passwords_list = self._get_data_from_file(data)
+        else:
+            passwords_list = data
+
+        for pwd in passwords_list:
+            print(f'Попытка: {pwd}')
+            if self._extract_protected_zip(pwd):
+                print(f'Пароль успешно найден: {pwd}')
+                return
+        print('Пароль не найден =(')
 
 
 if __name__ == '__main__':
-    brut = BruteForce('testdir_fixtures/passwords.txt', 'testdir_fixtures/secret.zip', 'testdir_fixtures')
-    brut.start_bruteforce()
+    brute = BruteforceZip('testdir_v2/secret.zip')
+    brute.create_protected_zip('testdir_v2/data.txt', 'qwe')
+    # brute.brute_force_combinations('wqe', 3)
+    # brute.brute_force_from_pass_list(['wqe', 'www', 'qwe'])
+    brute.brute_force_from_pass_list('testdir_v2/passwords.txt')
+
